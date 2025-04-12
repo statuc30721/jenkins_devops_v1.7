@@ -161,6 +161,10 @@ Which means you will need to access the Jenkins container on first deployment to
 
 I have included one of my guides that can be used to help you setup a Jenkins container with CI/CD functions including Ansible, SonarQube, NodeJS, Terraform, Aqua, Amazon Web Service, Google Cloud and Kubernetes plugins. It also walks your through a basic pipeline setup.
 
+Once you login to the Jenkins container and check for installed plugins you should see all of the plugins listed in the plugins.txt or any you manually added.
+
+![jenkins-system-information-plugins](./graphics/jenkins-sysinfo-plugins-screenshot.png)
+
 [SECURITY_NOTE:] If you intend to deploy this container on Docker Hub it is *RECOMMENDED* to *NOT* include any sensitive credential information such as cloud or service provider credentials or tokens. 
 
 
