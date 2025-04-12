@@ -165,7 +165,7 @@ Once you login to the Jenkins container and check for installed plugins you shou
 
 ![jenkins-system-information-plugins](./graphics/jenkins-sysinfo-plugins-screenshot.png)
 
-[SECURITY_NOTE:] If you intend to deploy this container on Docker Hub it is *RECOMMENDED* to *NOT* include any sensitive credential information such as cloud or service provider credentials or tokens. 
+[SECURITY_NOTE:] If you intend to deploy this container on remote repository server (e.g. Docker Hub, Sonatype Nexus) it is *RECOMMENDED* to *NOT* include any sensitive credential information such as cloud or service provider credentials or tokens. 
 
 
 # Advanced Plugin Management [OPTIONAL]
