@@ -2,6 +2,8 @@ This is a project to deploy a jenkins container with various tools to use for CI
 
 This is not ready for production but is intended for educational purposes.
 
+It provides a running Jenkins container with various plugins for AWS, GCP and Azure along with Terraform, Snyk, JFrog and SonarCube scanner.
+
 # Project Objectives:
 [CURRENT]
 - Create an easier workflow to build a local Jenkins image based off the *latest* Jenkins public image.
@@ -14,6 +16,8 @@ This is not ready for production but is intended for educational purposes.
 
 
 [FUTURE]
+
+- Reduce the size of the image to make it more manageable and portable.
 
 - Switch to using the Jenkins Configuration as a Code (JCasC) workflow to support automated deployment including administrator accounts.
 
@@ -33,7 +37,12 @@ what is actually expected to occur when running the build process.
 
 4. Revise the docker-compose.yaml (if desired) to what you want your Jenkins image to be named. For example, jenkins-devops. [NOTE:] You need to review the plugins.txt file to make sure you have *only* the plugins you want installed. Otherwise you will have plugins that you may not need and it will create a very large image (approximately 4 GB). The base jenkins images is around 800MB. This project will create a  much larger image due to software and plugin installation. The plugins alone takeup 1.5 GB of space.
 
-As an alternative you can comment out the section of the Dockerfile that pulls the plugins and install plugins manually. 
+[ALTERNATIVES:]
+(a) As an alternative you can comment out the section of the Dockerfile that pulls the plugins and install plugins manually. 
+
+(b) 
+
+
 
 5. Once you have the configuration files setup as you want, then run the following command to build your jenkins image file.
 
@@ -77,7 +86,7 @@ docker volume ls
 
 In this example the volume we need to access is named <jenkins_devops>.
 
-] If you are using Docker Desktop, then you can access the file via the GUI:
+[NOTE:] If you are using Docker Desktop, then you can access the file via the GUI:
 
 ![docker-desktop-gui-folder-access-picture](./graphics/docker-desktop-access-secrets-folder-screenshot.png)
 
@@ -98,10 +107,10 @@ jenkins and read the initial password file.
 docker exec -it --user jenkins <CONTAINER ID> bash
 
 In this example our CONTAINER ID is 161c86ed8bd5 so the command I run is:
- docker exec -it --user jenkins 161c86ed8bd5 bash
+ docker exec -it --user jenkins f0c0609c6ca5 bash
 
 You should see a console window like below:
-jenkins@161c86ed8bd5:/$
+jenkins@f0c0609c6ca5:/$
 
 - Access the initial password using the <cat> command:
 cat /var/jenkins_home/secrets/initialAdminPassword 
@@ -120,7 +129,11 @@ If you are using Docker Desktop, then you can select the URL in the GUI of your 
 
 ![jenkins-initial-admin-page](./graphics/jenkins-initial-setup-screenshot.png)
 
-11. Select the Customize Jenkins Install suggested plugins. You will be taken to the Getting Started page. Depending on your docker host, it may take some time for the plugins to get installed.
+11. Select the Customize Jenkins Install suggested plugins. You will be taken to the Getting Started page. 
+
+* Now here is where it can get a bit complex. If you use this repository "as-is" all of the "suggested plugins" will alrrady be installed. So what you will need to do is just select "Install Suggested Plugins" and instead of seeing a list of plugins getting installed, you will instead arrive at the "Create First Admin User" webpage.
+
+If you removed the plugin option from the Dockerfile then you will need to manually install your plugins. I have included one of my manuals for installing and setting up a Jenkins Docker container using the manual settings.
 
 ![customize-jenkins-picture](./graphics/customize-jenkins-screenshot.png)
 
@@ -144,11 +157,42 @@ Which means you will need to access the Jenkins container on first deployment to
 
 ![jenkins-getting-started-picture](./graphics/jenkins-is-ready-screenshot.png)
 
-14. At this stage you should see the Jenkins dashboard. We now have a basic running Jenkins docker container. From this point you can follow any published guide or your own procedures to advance the Jenkins deployment with various software and plugins.
+14. At this stage you should see the Jenkins dashboard. We now have a running Jenkins docker container. From this point you can follow any published guide or your own procedures to advance the Jenkins deployment with various software and plugins.
 
 I have included one of my guides that can be used to help you setup a Jenkins container with CI/CD functions including Ansible, SonarQube, NodeJS, Terraform, Aqua, Amazon Web Service, Google Cloud and Kubernetes plugins. It also walks your through a basic pipeline setup.
 
-# Prerequisites
-Docker Engine or Docker Desktop installed on the system you intend to run this project.
+[SECURITY_NOTE:] If you intend to deploy this container on Docker Hub it is *RECOMMENDED* to *NOT* include any sensitive credential information such as cloud or service provider credentials or tokens. 
 
 
+# Advanced Plugin Management [OPTIONAL]
+ 
+The manual installation of multiple plugins in Jenkins is both time consuming and can easily introduce errors in your workflow. So what I did to automate installation of plugins was to initially build a Jenkins container and installed applications used in several publications (e.g. Terraform, NodeJS, AWSCLI). 
+I then installed several Jenkins plugins. I later exported the list of plugins to a file and then made it reuseable in future deployments/upgrades of the jenkins image.
+
+These are the steps I used to create the list of plugins.
+
+1. Manually install the plugins you want to be as a default set beyond the ones that Jenkins provides on initial installation.
+
+2. Restart the Jenkins container, login to the Jenkins web portal and select the "Script Console" and input the following code:
+
+  Jenkins.instance.pluginManager.plugins.each {
+      println("${it.getShortName()}: ${it.getVersion()}")
+   }
+
+This script will list every plugin and print the short name and version. 
+
+
+[Reference:https://www.jenkins.io/doc/book/managing/plugins/]
+
+Select "Run" and the resulting output should be similar to the below image:
+
+
+The actual portion we want is after the word "Result:". Copy this file to a separate file and save-as "jenkins-baseline-plugins". 
+
+I separated the filename and remvoved the commas leveraging a <for loop> and <sed>.
+
+The basic workflow is to run a <for loop> in the docker container, putting files in a temporay file named plugin_output.txt; then have <sed> process the file removing the last comma from each file and then oputput to a new file named plugins.txt.
+
+In the Dockerfile you there is a section where the resulting file is uploaded during the build process, plugins are instaleld and then the file is removed. 
+
+If you elect to create your own list of Jenkins plugins you can either modify the provided plugins.txt file or create a new one following these steps.
