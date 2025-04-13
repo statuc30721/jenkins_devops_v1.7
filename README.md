@@ -193,7 +193,7 @@ Select "Run" and the resulting output should be similar to the below image:
 
 The actual portion we want is after the word "Result:". Copy this file to a separate file and save-as "jenkins-baseline-plugins". 
 
-I separated the filename and remvoved the commas leveraging a <for loop> and <sed>.
+I separated the filename and remvoved the commas leveraging a "for loop" and sed.
 
 The basic workflow is to run a <for loop> in the docker container, putting files in a temporay file named plugin_output.txt; then have <sed> process the file removing the last comma from each file and then oputput to a new file named plugins.txt.
 
