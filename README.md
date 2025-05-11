@@ -64,7 +64,7 @@ docker images
 
 7. Create an actual container from the jenkins-devops image. We use docker compose "up" versus the usual <docker run > workflow.
 
-- This first run we will just run <docker compose up> without the <> to just verify we can actually deploy a container from our jenkins image file. Later we will run this <detached> in order to free up our terminal/console. For the initial run it will create a volume named docker_devops. After the first run (unless you have deleted the docker_devops volume) your container will use this folder each time you run the docker compose up command.
+- This first run we will just run <docker compose up> without the "detached" < -d > option to just verify we can actually deploy a container from our jenkins image file. Later we will run this <detached> in order to free up our terminal/console. For the initial run it will create a volume named docker_devops. After the first run (unless you have deleted the docker_devops volume) your container will use this folder each time you run the docker compose up command.
 
 docker compose up
 
